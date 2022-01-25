@@ -8,7 +8,7 @@ use crate::msg::{ ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::state::{State, STATE};
 
 // version info for migration info
-const CONTRACT_NAME: &str = "crates.io:my-first-contract";
+const CONTRACT_NAME: &str = "crates.io:i-swap";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -39,23 +39,38 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
-        ExecuteMsg::Dummy {} => try_dummy(deps),
+        ExecuteMsg::CreateContract {} => create_contract(deps),
+        ExecuteMsg::SetContractPrice {} => set_contract_price(deps),
+        ExecuteMsg::ApplyFundRates {} => apply_fund_rates(deps),
+        ExecuteMsg::CloseContract {} => close_contract(deps),
     }
 }
 
-pub fn try_dummy(deps: DepsMut) -> Result<Response, ContractError> {
-
-    Ok(Response::new().add_attribute("method", "try_dummy"))
+pub fn create_contract(deps: DepsMut) -> Result<Response, ContractError> {
+    Ok(Response::new().add_attribute("method", "create_contract"))
 }
+
+pub fn set_contract_price(deps: DepsMut) -> Result<Response, ContractError> {
+    Ok(Response::new().add_attribute("method", "set_contract_price"))
+}
+
+pub fn apply_fund_rates(deps: DepsMut) -> Result<Response, ContractError> {
+    Ok(Response::new().add_attribute("method", "apply_fund_rates"))
+}
+
+pub fn close_contract(deps: DepsMut) -> Result<Response, ContractError> {
+    Ok(Response::new().add_attribute("method", "close_contract"))
+}
+
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::GetDummy {} => to_binary(&query_dummy(deps)?),
+        QueryMsg::GetContractPrice {} => to_binary(&query_contract_price(deps)?),
     }
 }
 
-fn query_dummy(deps: Deps) -> StdResult<u32> {
+fn query_contract_price(deps: Deps) -> StdResult<u32> {
     let state = STATE.load(deps.storage)?;
     Ok(1)
 }
@@ -78,10 +93,8 @@ mod tests {
         assert_eq!(0, res.messages.len());
 
         // it worked, let's query the state
-        let res = query(deps.as_ref(), mock_env(), QueryMsg::GetDummy {}).unwrap();
+        let res = query(deps.as_ref(), mock_env(), QueryMsg::GetContractPrice {}).unwrap();
         let value: u32 = from_binary(&res).unwrap();
         assert_eq!(1, value);
     }
-
-
 }
