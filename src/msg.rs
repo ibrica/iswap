@@ -1,5 +1,6 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use cosmwasm_std::{Uint64, Uint128};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct InstantiateMsg {
@@ -9,9 +10,13 @@ pub struct InstantiateMsg {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ExecuteMsg {
-    CreateContract {},
+    CreateContract {
+        amount: Uint128,
+        created: Uint128,
+        long: Uint64 
+    },
     SetContractPrice {},
-    BurnContract {},
+    CloseContract {},
     ApplyFundRates {}
 }
 

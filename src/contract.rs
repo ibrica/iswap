@@ -1,11 +1,11 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
-use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
+use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Uint128, Uint64};
 use cw2::set_contract_version;
 
 use crate::error::ContractError;
 use crate::msg::{ ExecuteMsg, InstantiateMsg, QueryMsg};
-use crate::state::{State, STATE};
+use crate::state::{Contract, CONTRACT};
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:i-swap";
@@ -18,17 +18,11 @@ pub fn instantiate(
     info: MessageInfo,
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
-    let state = State {
-        count: msg.count,
-        owner: info.sender.clone(),
-    };
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
-    STATE.save(deps.storage, &state)?;
 
     Ok(Response::new()
         .add_attribute("method", "instantiate")
-        .add_attribute("owner", info.sender)
-        .add_attribute("count", msg.count.to_string()))
+    )
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -39,15 +33,38 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
-        ExecuteMsg::CreateContract {} => create_contract(deps),
+        ExecuteMsg::CreateContract {
+            amount,
+            created,
+            long 
+        } => create_contract(
+            deps, 
+            info,
+            amount,
+            created,
+            long 
+        ),
         ExecuteMsg::SetContractPrice {} => set_contract_price(deps),
         ExecuteMsg::ApplyFundRates {} => apply_fund_rates(deps),
         ExecuteMsg::CloseContract {} => close_contract(deps),
     }
 }
 
-pub fn create_contract(deps: DepsMut) -> Result<Response, ContractError> {
-    Ok(Response::new().add_attribute("method", "create_contract"))
+pub fn create_contract(
+    deps: DepsMut,
+    info: MessageInfo,
+    amount: Uint128,
+    created: Uint128,
+    long: Uint64
+) -> Result<Response, ContractError> {
+
+
+    let res = Response::new()
+        .add_attribute("action", "create")
+        .add_attribute("owner", info.sender)
+        .add_attribute("amount", amount)
+        .add_attribute("long", long);
+    Ok(res)
 }
 
 pub fn set_contract_price(deps: DepsMut) -> Result<Response, ContractError> {
@@ -71,7 +88,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 }
 
 fn query_contract_price(deps: Deps) -> StdResult<u32> {
-    let state = STATE.load(deps.storage)?;
+    let contract = CONTRACT.load(deps.storage)?;
     Ok(1)
 }
 
