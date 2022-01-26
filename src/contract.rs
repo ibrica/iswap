@@ -62,10 +62,20 @@ pub fn create_contract(
         return Err(ContractError::InvalidZeroAmount {});
     }
 
+    let contract = Contract {
+        owner: info.sender.clone(),
+        amount,
+        created,
+        long
+    };
+
+    CONTRACT.save(deps.storage, &contract)?;
+    
     let res = Response::new()
         .add_attribute("action", "create")
         .add_attribute("owner", info.sender)
         .add_attribute("amount", amount)
+        .add_attribute("created", created)
         .add_attribute("long", long);
     Ok(res)
 }
