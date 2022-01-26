@@ -58,6 +58,9 @@ pub fn create_contract(
     long: Uint64
 ) -> Result<Response, ContractError> {
 
+    if amount == Uint128::zero() {
+        return Err(ContractError::InvalidZeroAmount {});
+    }
 
     let res = Response::new()
         .add_attribute("action", "create")
